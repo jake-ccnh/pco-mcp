@@ -4,11 +4,11 @@ This project integrates the Planning Center Online (PCO) API with an MCP server 
 
 ## Features  
 - **PCO API Integration**: Connects to Planning Center Online to access and manage data.  
-- **MCP Server**: Acts as a middleware to handle requests and responses between the LLM and PCO API.  
+- **FASTMCP Server**: Acts as a middleware to handle requests and responses between the LLM and PCO API.  
 - **LLM Query Support**: Enables natural language queries to fetch and manipulate data from Planning Center.  
 
 ## Use Cases  
-- Retrieve information about events, groups, or people in Planning Center.  
+- Retrieve information about services in Planning Center.  
 - Automate workflows by querying and updating data using natural language.  
 - Provide insights and analytics through conversational queries.  
 
@@ -16,7 +16,8 @@ This project integrates the Planning Center Online (PCO) API with an MCP server 
 
 ### Prerequisites  
 - Access to the [Planning Center API](https://developer.planningcenteronline.com/).  
-- MCP server setup.  
+- Python environment 
+- MCP Client (i.e. Claude Desktop)
 - API keys for authentication.  
 
 ### Installation  
@@ -26,21 +27,39 @@ This project integrates the Planning Center Online (PCO) API with an MCP server 
     ```  
 2. Install dependencies:  
     ```bash  
-    npm install  
+    uv pip install -r requirements.txt 
     ```  
 3. Configure environment variables:  
-    - `PCO_API_KEY`: Your Planning Center API key.  
-    - `MCP_SERVER_URL`: URL of the MCP server.  
+    - `PCO_SECRET_KEY`: Your Planning Center API key.  
+    - `PCO_APPLICATION_ID`: URL of the MCP server.  
 
-4. Start the server:  
+4. Test the server:  
     ```bash  
-    npm start  
+    fastmcp dev services.py
     ```  
 
 ## Usage  
 1. Send a natural language query to the MCP server.  
 2. The server processes the query and interacts with the PCO API.  
 3. Receive a structured response or perform the requested action.  
+
+Add MCP server config
+``` json
+{
+  "mcpServers": {
+    "pco-services": {
+      "command": "/Users/calvarychapelnewharvest/anaconda3/envs/mcp/bin/fastmcp",
+      "args": [
+        "run",
+        "/Users/calvarychapelnewharvest/Documents/pco-mcp/services.py"
+      ]
+    }
+  }
+}
+```
+
+## Future Work
+It is intended to continue work on other areas of planning center.
 
 ## Contributing  
 Contributions are welcome! Please submit a pull request or open an issue for any suggestions or improvements.  
@@ -50,4 +69,5 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Resources  
 - [Planning Center API Documentation](https://developer.planningcenteronline.com/)  
-- [MCP Server Documentation](https://example.com/mcp-docs)  
+- [FastMCP](https://github.com/jlowin/fastmcp)  
+- [pypco](https://github.com/billdeitrick/pypco)
