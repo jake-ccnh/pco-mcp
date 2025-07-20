@@ -60,18 +60,52 @@ def get_plan_team_members(plan_id: str) -> list:
     response = pco.get(f'/services/v2/plans/{plan_id}/team_members')
     return response['data']
 
-# @mcp.tool()
-# def get_plan_team_member_assignments(plan_id: str, team_member_id: str) -> list:
-#     """
-#     Fetch a list of assignments for a specific team member in a plan.
+@mcp.tool()
+def schedule_team_member(service_type_id: str, plan_id: str, team_id: int, team_position_name: str, person_id: str) -> list:
+    """
+    Schedule a team member for a specific plan under a service type.
     
-#     Args:
-#         plan_id (str): The ID of the plan.
-#         team_member_id (str): The ID of the team member.
-#     """
-#     # Using the direct get method as shown in the documentation
-#     response = pco.get(f'/services/v2/plans/{plan_id}/team_members/{team_member_id}/assignments')
-#     return response['data']
+    Args:
+        service_type_id (str): The ID of the service type.
+        plan_id (str): The ID of the plan.
+        team_id (int): The ID of the team.
+        team_position_name (str): The role or position name within the team.
+        person_id (str): The ID of the person to schedule.
+    
+    """
+    endpoint = f'/services/v2/service_types/{service_type_id}/plans/{plan_id}/schedule_team_members'
+
+    payload = {
+        "data": {
+            "attributes": {
+                "team_id": team_id,
+                "team_position_name": team_position_name,
+                "people_ids": [person_id]
+            }
+        }
+    }
+
+    response = pco.post(endpoint, payload)
+    return response
+
+@mcp.tool()
+def get_teams() -> list:
+    """
+    Fetch a list of teams from the Planning Center Online API.
+    
+    This function retrieves all teams, including extended teams, from the Planning Center Online API.
+    It uses the endpoint for extended teams to ensure all teams are included.
+    """
+    response = pco.get('/services/v2/extended_teams?order=name&offset=0&per_page=100')
+    return response['data']
+
+@mcp.tool()
+def get_team_people(team_id: str) -> list:
+    """
+    Fetch a list of people associated with a specific team.
+    """
+    response = pco.get(f'/services/v2/service_types/{service_type_id}/not_deleted_teams/{team_id}/team_people?offset=0&order=first_name&per_page=100')
+    return response['data']
 
 @mcp.tool()
 def get_songs() -> list:
