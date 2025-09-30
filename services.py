@@ -83,15 +83,133 @@ def get_songs() -> list:
     return response['data']
 
 @mcp.tool()
+def create_song(title: str, ccli: str = None) -> dict:
+    """
+    Create a new song in Planning Center Online.
+
+    Args:
+        title (str): The title of the song.
+        ccli (str, optional): The CCLI number for the song.
+
+    Returns:
+        dict: The created song data.
+    """
+    attributes = {"title": title}
+    if ccli:
+        attributes["ccli_number"] = ccli
+
+    body = pco.template('Song', attributes)
+    response = pco.post('/services/v2/songs', body)
+    return response['data']
+
+@mcp.tool()
+def find_song_by_title(title: str) -> list:
+    """
+    Find songs by title.
+
+    Args:
+        title (str): The title of the song to search for.
+
+    Returns:
+        list: List of songs matching the title.
+    """
+    response = pco.get(f'/services/v2/songs?where[title]={title}&where[hidden]=false')
+    return response['data']
+
+@mcp.tool()
 def get_song(song_id: str) -> dict:
     """
     Fetch details for a specific song.
-    
+
     Args:
         song_id (str): The ID of the song.
     """
     # Using the direct get method as shown in the documentation
     response = pco.get(f'/services/v2/songs/{song_id}')
+    return response['data']
+
+@mcp.tool()
+def assign_tags_to_song(song_id: str, tag_names: list[str]) -> dict:
+    """
+    Assign tags to a specific song.
+
+    Args:
+        song_id (str): The ID of the song.
+        tag_names (list[str]): List of tag names to assign to the song.
+
+    Returns:
+        dict: Success status and message.
+    """
+    # Get all tag groups with their tags included
+    tag_groups_response = pco.get('/services/v2/tag_groups?include=tags&filter=song')
+
+    # Extract tags from the included section
+    included_tags = tag_groups_response.get('included', [])
+
+    # Find the tag IDs for the requested tag names
+    tag_data = []
+    for tag_name in tag_names:
+        for tag in included_tags:
+            if tag['type'] == 'Tag' and tag['attributes']['name'].lower() == tag_name.lower():
+                tag_data.append({
+                    "type": "Tag",
+                    "id": tag['id']
+                })
+                break
+
+    if not tag_data:
+        return {"success": False, "message": "No matching tags found"}
+
+    # Build the request body
+    body = {
+        "data": {
+            "type": "TagAssignment",
+            "attributes": {},
+            "relationships": {
+                "tags": {
+                    "data": tag_data
+                }
+            }
+        }
+    }
+
+    # Make the POST request
+    response = pco.post(f'/services/v2/songs/{song_id}/assign_tags', body)
+
+    # A 204 status means success with no content
+    return {"success": True, "message": f"Successfully assigned {len(tag_data)} tag(s) to song {song_id}"}
+
+@mcp.tool()
+def find_songs_by_tags(tag_names: list[str]) -> list:
+    """
+    Find songs that have all of the specified tags.
+
+    Args:
+        tag_names (list[str]): List of tag names to filter songs by. Songs must have all specified tags.
+    """
+    # Get all tag groups with their tags included
+    tag_groups_response = pco.get('/services/v2/tag_groups?include=tags&filter=song')
+
+    # Extract tags from the included section
+    included_tags = tag_groups_response.get('included', [])
+
+    # Find the tag IDs for the requested tag names
+    tag_ids = []
+    for tag_name in tag_names:
+        for tag in included_tags:
+            if tag['type'] == 'Tag' and tag['attributes']['name'].lower() == tag_name.lower():
+                tag_ids.append(tag['id'])
+                break
+
+    if not tag_ids:
+        return []
+
+    # Build the query string with tag filters
+    # Multiple tag filters create an AND condition
+    tag_filters = '&'.join([f'where[song_tag_ids]={tag_id}' for tag_id in tag_ids])
+    query = f'/services/v2/songs?per_page=200&where[hidden]=false&{tag_filters}'
+
+    response = pco.get(query)
     return response['data']
 
 
