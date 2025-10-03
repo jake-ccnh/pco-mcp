@@ -48,13 +48,13 @@ Add MCP server config
 {
   "mcpServers": {
     "pco-services": {
-      "command": "/Users/calvarychapelnewharvest/anaconda3/envs/mcp/bin/fastmcp",
-      "args": [
-        "run",
-        "/Users/calvarychapelnewharvest/Documents/pco-mcp/services.py"
-      ]
+      "command": "/path/to/fastmcp",
+      "args": ["run", "/path/to/services.py"],
+      "env": {
+        "PCO_APPLICATION_ID": "PCO_CLIENT_ID",
+        "PCO_SECRET_KEY": "PCO_CLIENT_SECRET_KEY"
+      }
     }
-  }
 }
 ```
 
