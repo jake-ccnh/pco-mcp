@@ -83,11 +83,19 @@ def get_songs() -> list:
     return response['data']
 
 @mcp.tool()
-def get_arrangements_for_song(song_id: str) -> list:
+def get_all_arrangements_for_song(song_id: str) -> list:
     """
-    Get a list of arrangements for a particular song from the Planning Center Online API.
+    Get a list of all the arrangements for a particular song from the Planning Center Online API.
     """
     response = pco.get(f'/services/v2/songs/{song_id}/arrangements')
+    return response['data']
+
+@mcp.tool()
+def get_arrangement_for_song(song_id: str, arrangement_id: str) -> list:
+    """
+    Get information for a particular song from the Planning Center Online API.
+    """
+    response = pco.get(f'/services/v2/songs/{song_id}/arrangements{arrangement_id}')
     return response['data']
 
 @mcp.tool()
