@@ -83,6 +83,14 @@ def get_songs() -> list:
     return response['data']
 
 @mcp.tool()
+def get_arrangements_for_song(song_id: str) -> list:
+    """
+    Get a list of arrangements for a particular song from the Planning Center Online API.
+    """
+    response = pco.get(f'/services/v2/songs/{song_id}/arrangements')
+    return response['data']
+
+@mcp.tool()
 def create_song(title: str, ccli: str = None) -> dict:
     """
     Create a new song in Planning Center Online.
