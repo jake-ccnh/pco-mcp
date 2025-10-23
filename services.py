@@ -106,7 +106,7 @@ def get_arrangement_for_song(song_id: str, arrangement_id: str) -> list:
     return response['data']
 
 @mcp.tool()
-def get_keys(song_id: str, arrangement_id: str) -> list:
+def get_keys_for_arrangement_of_song(song_id: str, arrangement_id: str) -> list:
     """
     Get a list of keys available for a particular song ID and arrangement ID from the Planning Center Online API. 
 
